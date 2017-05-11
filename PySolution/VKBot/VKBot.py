@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import vk_api
 import re
 import string
@@ -7,7 +8,10 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 
 login, password = '89870195625', '258262St'
 vk = vk_api.VkApi(login, password)
+
 whitelist = (25069332,)
+nope = "nope"
+daily = ""
 
 class answer:
     def __init__(self, d, a):
@@ -31,6 +35,12 @@ ans_for_last = [answer(('куда','кида'),'туда, куда не ходя
                 answer(('че','чо'),'хуй через плечо'),
                 answer(('нету','нети'),'нет слова "нету", безграмотный')]
 
+ans_vasiliy = [ answer(('важное',),'Пока ничего важного нет')]
+
+def chat_preff(from_chat,user_id,user_name):
+    if from_chat: return '@id'+str(user_id)+' ('+user_name+')'
+    else: return ''
+
 def del_repeats(match):
 	return match.group(0)[0]
 
@@ -40,14 +50,13 @@ def write_chat(id, mes):
 def write_user(id, mes):
     vk.method('messages.send', {'user_id':id,'message':mes})
 
-def answer_mes(message, user_id, user_name, from_chat):
-    if int(user_id) in whitelist: return 'nope'
-    if from_chat: preff = '@id'+str(user_id)+' ('+user_name+'), '
-    else: preff = ''
+def answer_bad(message, user_id, user_name, from_chat):
+    if int(user_id) in whitelist: return nope
+    preff = chat_preff(from_chat,user_id,user_name)+', '
     delimetrs = str.maketrans(
         'qwertyuiopasdfghjklzxcvbnm',
         'квертиуиопасдфгхйклзхцвбнм',
-        string.punctuation+'ьъ'+"!@#$%^&amp;*()-_=+{}[];:'&quot;&lt;&gt;,./?|\\")
+        string.punctuation+'ъ'+"!@#$%^&amp;*()-_=+{}[];:'&quot;&lt;&gt;,./?|\\")
     message = message.lower().translate(delimetrs)
     
     #300
@@ -60,7 +69,21 @@ def answer_mes(message, user_id, user_name, from_chat):
     for e,l in zip_longest(ans_for_end,ans_for_last):
         if e != None and message.endswith(tuple(e.dict)): return preff+e.ans
         elif l != None and last_word in l.dict: return preff+l.ans
-    return 'nope'
+    return nope
+
+def answer_good(message, user_id, user_name, from_chat):
+    vasiliy = 'id427817510'
+    preff = chat_preff(from_chat,user_id,user_name)
+    mes = nope
+    messages = message.lower().split(' ')
+    #if int(user_id) in blacklist: return nope
+    if vasiliy in message:
+        mes = 'привет '+preff+'. '
+        for m in messages:
+            for v in ans_vasiliy:
+                if m in v.dict: return mes + v.ans
+        return mes
+    else: return nope
 
 def main():
     try:
@@ -68,24 +91,26 @@ def main():
     except vk_api.AuthError as error_msg:
         print(error_msg)
         return
-
+    print('Бот запущен')
     longpoll = VkLongPoll(vk)
     for event in longpoll.listen():
-
         if event.type == VkEventType.MESSAGE_NEW:
             print('Новое сообщение: ')
             user_name = vk.method('users.get', {'user_ids':event.user_id})[0]['first_name']
-            mes = answer_mes(event.text, event.user_id, user_name, event.from_chat)
+            bad_mes = answer_bad(event.text, event.user_id, user_name, event.from_chat)
+            good_mes = answer_good(event.text, event.user_id, user_name, event.from_chat)
             print('От кого:',user_name)
-            print('Ответочка:',mes)
+            print('Ответочка:',bad_mes,good_mes)
             if event.from_me: print(u'От меня для:')
             elif event.to_me: print(u'Для меня от:')
 
             if event.from_user and event.to_me:
-                if mes != 'nope': write_user(event.user_id, mes)
+                if bad_mes != nope: write_user(event.user_id, bad_mes)
+                elif good_mes != nope: write_user(event.user_id, good_mes)
                 print(event.user_id)
             elif event.from_chat and event.to_me:
-                if mes != 'nope': write_chat(event.chat_id, mes)
+                if bad_mes != nope: write_chat(event.chat_id, bad_mes)
+                elif good_mes != nope: write_chat(event.chat_id, good_mes)
                 print(event.user_id, 'в беседе', event.chat_id)
             elif event.from_group:
                 print('группы', event.group_id)
@@ -109,7 +134,17 @@ def main():
 
         else:
             print(event.type, event.raw[1:])
+ 
+def dialog():
+    print('Установите сообщение дня:')
+    daily_message(input())
 
+def daily_message(s):
+    daily = s
+    print('Сообщение дня установлено')
+    return
+    
 if __name__ == '__main__':
+    #dialog()
     main()
 
