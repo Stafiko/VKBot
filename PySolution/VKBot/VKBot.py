@@ -40,6 +40,17 @@ def file(id, file, chat):
     else: to='user_id'
     vk.method('messages.send', {to:int(id),'message':'...','attachment':file})
 
+def answer_file(ans, user_id, chat_id):
+    chat = chat_id != nope
+    result = ''
+    for a in ans.ans:
+        if a.startswith('file'): 
+            f = a.split('.')[1]
+            if chat: file(chat_id,f,True)
+            else: file(user_id,f,False)
+        else: result = result + a + '\n'
+    return result
+
 def answer_bad(message, user_name, user_id, chat_id):
     chat = chat_id != nope
     if int(user_id) in whitelist or message.lower().endswith(tuple(ans_vasiliy_info[0].dict)): return nope
@@ -51,29 +62,31 @@ def answer_bad(message, user_name, user_id, chat_id):
     message = message.lower().translate(delimetrs)
     
     #300
-    if message.endswith(tuple(ans_for_end[0].dict)): return preff+ans_for_end[0].ans
+    if message.endswith(tuple(ans_for_end[0].dict)): return preff+' '.join(ans_for_end[0].ans)
 
     message = message.translate(str.maketrans('','',string.digits))
     message = re.sub(r'(.)\1+', del_repeats, message)
     last_word = message.split(' ')[-1]
     message.replace(' ','')
     for e,l in zip_longest(ans_for_end,ans_for_last):
-        if e != None and message.endswith(tuple(e.dict)): return preff+e.ans
-        elif l != None and last_word in l.dict: return preff+l.ans
+        if e != None and message.endswith(tuple(e.dict)): return preff+' '.join(e.ans)
+        elif l != None and last_word in l.dict: return preff+' '.join(l.ans)
     return nope
 
 def search_good(ans, user_id, chat_id):
     result = ''
     chat = chat_id != nope
-    for a in ans.ans:
-        if a.startswith('file'): 
-            f = a.split('.')[1]
-            if chat: file(chat_id,f,True)
-            else: file(user_id,f,False)
-        else: result = result + a + '\n'
+    if ans.dict[0] == 'все':
+        result = ','.join(ans_vasiliy_info[2].dict) + ': ' + ', '.join(ans_vasiliy_info[2].ans) + '\n'
+        for pr in ans_vasiliy_predm:
+            result = result + 'по ' + ','.join(pr.dict) + ': '
+            result = result + answer_file(pr, user_id, chat_id)
+        result = result + ', '.join(ans.ans)
+    else: result = result + answer_file(ans, user_id, chat_id)
     return result
 
 def answer_good(message, user_name, user_id, chat_id):
+    find = False
     chat = chat_id != nope
     vasiliy = 'id427817510'
     preff = chat_preff(chat_id,user_id,user_name)
@@ -85,9 +98,13 @@ def answer_good(message, user_name, user_id, chat_id):
         if chat: mes = preff
         for m in messages:
             for i,p in zip_longest(ans_vasiliy_info,ans_vasiliy_predm):
-                if i != None and m in i.dict: mes = mes + search_good(i, user_id, chat_id)
-                elif p != None and m in p.dict: mes = mes + search_good(p, user_id, chat_id)
-        return mes    
+                if i != None and m in i.dict: 
+                    find = True
+                    mes = mes + search_good(i, user_id, chat_id)
+                elif p != None and m in p.dict: 
+                    find = True
+                    mes = mes + search_good(p, user_id, chat_id)
+        if find: return mes    
     return nope
 
 def main():
@@ -150,7 +167,8 @@ def load():
         splits[1] = splits[1].split(';')
         to = splits[0]
         dict = splits[1][0].split(',')
-        ans = splits[1][1].split('.')[0]
+        ans = splits[1][1].split('.')
+        ans.pop()
 
         if to == 'e': ans_for_end.append(answer(dict,ans))
         if to == 'l': ans_for_last.append(answer(dict,ans))
