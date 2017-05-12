@@ -11,34 +11,18 @@ vk = vk_api.VkApi(login, password)
 
 whitelist = (25069332,)
 nope = "nope"
-daily = ""
 
 class answer:
     def __init__(self, d, a):
         self.dict = d
         self.ans = a
 
-ans_for_end = [ answer(('тристо','триста','трицто','трицта',
-	                    '300','3оо','3о0','30о',
-		                '3сто','3ста','3цто','3цта',
-		                'три100','три1оо','три1о0','три10о'),'отсоси у программиста'),
-                answer(('ет',),'пидора ответ'),
-                answer(('да',),'на хую борода')]
-
-ans_for_last = [answer(('куда','кида'),'туда, куда не ходят поезда'),
-                answer(('тоже','тоге','тойе'),'на говно похоже'),
-                answer(('где',),'в караганде'),
-                answer(('ок',),'пидора кусок'),
-                answer(('я','йа','иа'),'головка от хуя'),
-                answer(('кек',),'лол арбидол'),
-                answer(('лол',),'кек чебурек'),
-                answer(('че','чо'),'хуй через плечо'),
-                answer(('нету','нети'),'нет слова "нету", безграмотный')]
-
-ans_vasiliy = [ answer(('важное',),'Пока ничего важного нет')]
+ans_for_end = []
+ans_for_last = []
+ans_vasiliy = []
 
 def chat_preff(from_chat,user_id,user_name):
-    if from_chat: return '@id'+str(user_id)+' ('+user_name+')'
+    if from_chat: return '@id'+str(user_id)+' ('+user_name+'), '
     else: return ''
 
 def del_repeats(match):
@@ -52,7 +36,7 @@ def write_user(id, mes):
 
 def answer_bad(message, user_id, user_name, from_chat):
     if int(user_id) in whitelist: return nope
-    preff = chat_preff(from_chat,user_id,user_name)+', '
+    preff = chat_preff(from_chat,user_id,user_name)
     delimetrs = str.maketrans(
         'qwertyuiopasdfghjklzxcvbnm',
         'квертиуиопасдфгхйклзхцвбнм',
@@ -77,13 +61,11 @@ def answer_good(message, user_id, user_name, from_chat):
     mes = nope
     messages = message.lower().split(' ')
     #if int(user_id) in blacklist: return nope
-    if vasiliy in message:
-        mes = 'привет '+preff+'. '
-        for m in messages:
-            for v in ans_vasiliy:
-                if m in v.dict: return mes + v.ans
-        return mes
-    else: return nope
+    if vasiliy in message or not from_chat: mes = preff
+    for m in messages:
+        for v in ans_vasiliy:
+            if m in v.dict: return mes + v.ans
+    return nope
 
 def main():
     try:
@@ -134,17 +116,28 @@ def main():
 
         else:
             print(event.type, event.raw[1:])
- 
-def dialog():
-    print('Установите сообщение дня:')
-    daily_message(input())
 
-def daily_message(s):
-    daily = s
-    print('Сообщение дня установлено')
-    return
-    
+def load():
+    f = open('answers.dat')
+    for line in f:
+        splits = line.split(':')
+        splits[1] = splits[1].split(';')
+        to = splits[0]
+        dict = splits[1][0].split(',')
+        ans = splits[1][1].split('.')[0]
+        if to == 'e': ans_for_end.append(answer(dict,ans))
+        if to == 'l': ans_for_last.append(answer(dict,ans))
+
+    f = open('info.dat')
+    for line in f:
+        splits = line.split(';')
+        dict = splits[0].split(',')
+        ans = splits[1].split('.')[0]
+        ans_vasiliy.append(answer(dict,ans))
+    f.close()
+    print('Данные загружены')
+
 if __name__ == '__main__':
-    #dialog()
+    load()
     main()
 
