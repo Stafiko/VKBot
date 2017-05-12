@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import datetime
 import vk_api
 import re
@@ -58,7 +58,7 @@ def answer_bad(message, user_id, user_name, from_chat):
 def answer_good(message, user_id, user_name, from_chat):
     vasiliy = 'id427817510'
     preff = chat_preff(from_chat,user_id,user_name)
-    mes = nope
+    mes = ""
     messages = message.lower().split(' ')
     if int(user_id) in blacklist: return nope
     if vasiliy in message or not from_chat: mes = preff
@@ -121,7 +121,7 @@ def main():
             print(event.type, event.raw[1:])
 
 def load():
-    f = open('answers.dat')
+    f = open('Data/answers.dat')
     for line in f:
         splits = line.split(':')
         splits[1] = splits[1].split(';')
@@ -131,7 +131,7 @@ def load():
         if to == 'e': ans_for_end.append(answer(dict,ans))
         if to == 'l': ans_for_last.append(answer(dict,ans))
 
-    f = open('info.dat')
+    f = open('Data/info.dat')
     info = []
     for line in f:
         splits = line.split(';')
@@ -142,7 +142,7 @@ def load():
         ans_vasiliy.append(answer(dict,ans))
     ans_vasiliy[0].ans.extend(info)
 
-    f = open('users.dat')
+    f = open('Data/users.dat')
     for line in f:
         splits = line.split(':')
         to = splits[0]
