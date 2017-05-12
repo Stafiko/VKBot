@@ -9,14 +9,14 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 login, password = '89870195625', '258262St'
 vk = vk_api.VkApi(login, password)
 
-whitelist = (25069332,)
-nope = "nope"
-
 class answer:
     def __init__(self, d, a):
         self.dict = d
         self.ans = a
 
+nope = "nope"
+whitelist = []
+blacklist = []
 ans_for_end = []
 ans_for_last = []
 ans_vasiliy = []
@@ -35,7 +35,7 @@ def write_user(id, mes):
     vk.method('messages.send', {'user_id':id,'message':mes})
 
 def answer_bad(message, user_id, user_name, from_chat):
-    if int(user_id) in whitelist: return nope
+    if int(user_id) in whitelist or message.endswith(tuple(ans_vasiliy[0].dict)): return nope
     preff = chat_preff(from_chat,user_id,user_name)
     delimetrs = str.maketrans(
         'qwertyuiopasdfghjklzxcvbnm',
@@ -60,11 +60,14 @@ def answer_good(message, user_id, user_name, from_chat):
     preff = chat_preff(from_chat,user_id,user_name)
     mes = nope
     messages = message.lower().split(' ')
-    #if int(user_id) in blacklist: return nope
+    if int(user_id) in blacklist: return nope
     if vasiliy in message or not from_chat: mes = preff
     for m in messages:
         for v in ans_vasiliy:
-            if m in v.dict: return mes + v.ans
+            if m in v.dict: 
+                for a in v.ans:
+                    mes = mes + a + '\n'
+                return mes    
     return nope
 
 def main():
@@ -129,11 +132,24 @@ def load():
         if to == 'l': ans_for_last.append(answer(dict,ans))
 
     f = open('info.dat')
+    info = []
     for line in f:
         splits = line.split(';')
         dict = splits[0].split(',')
-        ans = splits[1].split('.')[0]
+        ans = splits[1].split("'")
+        info.extend(dict)
+        ans.pop()
         ans_vasiliy.append(answer(dict,ans))
+    ans_vasiliy[0].ans.extend(info)
+
+    f = open('users.dat')
+    for line in f:
+        splits = line.split(':')
+        to = splits[0]
+        ids = splits[1].split(',')
+        ids.pop()
+        if to == 'w': whitelist.extend(ids)
+        if to == 'b': blacklist.extend(ids)
     f.close()
     print('Данные загружены')
 
