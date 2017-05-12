@@ -28,9 +28,12 @@
     <InterpreterReference Include="Global|PythonCore|3.6" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="answers.dat" />
-    <Content Include="info.dat" />
-    <Content Include="users.dat" />
+    <Content Include="Data\answers.dat" />
+    <Content Include="Data\info.dat" />
+    <Content Include="Data\users.dat" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
