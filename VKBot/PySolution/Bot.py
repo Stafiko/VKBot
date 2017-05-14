@@ -15,7 +15,6 @@ class answer:
         self.ans = a
 
 nope = "nope"
-empty = [answer([],'')]
 whitelist = []
 blacklist = []
 ans_for_end = []
@@ -62,12 +61,13 @@ def answer_bad(message, user_name, user_id, chat_id):
     message = message.lower().translate(delimetrs)
     
     #300
+    #poka ne pridumal kak sdelat neudalyaa digits
     if message.endswith(tuple(ans_for_end[0].dict)): return preff+' '.join(ans_for_end[0].ans)
 
     message = message.translate(str.maketrans('','',string.digits))
     message = re.sub(r'(.)\1+', del_repeats, message)
     last_word = message.split(' ')[-1]
-    message.replace(' ','')
+    message = message.replace(' ','')
     for e,l in zip_longest(ans_for_end,ans_for_last):
         if e != None and message.endswith(tuple(e.dict)): return preff+' '.join(e.ans)
         elif l != None and last_word in l.dict: return preff+' '.join(l.ans)
