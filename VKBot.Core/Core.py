@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import datetime
 import vk_api
 import re
@@ -51,7 +51,7 @@ def answer_bad(message, user_name, user_id, chat_id):
     delimetrs = str.maketrans(
         'qwertyuiopasdfghjklzxcvbnm',
         'квертиуиопасдфгхйклзхцвбнм',
-        string.punctuation+'ъ'+"!@#$%^&amp;*()-_=+{}[];:'&quot;&lt;&gt;,./?|\\")
+        string.punctuation+"ъ!@#$%^№&\"*()-_=+{}[]<>;:',./?|\\")
     message = message.lower().translate(delimetrs)
     
     #300
