@@ -2,15 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>c5c98387-acec-4938-8cc9-1bdf52385f04</ProjectGuid>
+    <ProjectGuid>285d9d5a-f737-4bd5-b3ed-7f6c9fdaf370</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Bot.py</StartupFile>
+    <StartupFile>Core.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>PySolution</Name>
-    <RootNamespace>PySolution</RootNamespace>
+    <Name>CorePy</Name>
+    <RootNamespace>CorePy</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Bot.py" />
+    <Compile Include="Core.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
